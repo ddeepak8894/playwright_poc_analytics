@@ -1,4 +1,14 @@
+general rules for writting css
+if id present 
+css tagname#id or #id
+class 
+.class
 
+[attribute='value']
+parent>>child
+text=''
+
+========================
   yarn playwright test
     Runs the end-to-end tests.
 
