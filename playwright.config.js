@@ -3,7 +3,7 @@ const { defineConfig, devices } = require('@playwright/test');
 
 module.exports = defineConfig({
  //which tests to run
-  testDir: './tests',
+  testDir: './analytics_tests',
   fullyParallel: false,
   timeout: 30*1000,
   expect: {
