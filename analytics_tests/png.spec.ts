@@ -16,26 +16,30 @@ test('test', async ({ page }) => {
   await page.frameLocator('#analytics_iframe').getByLabel('Run', { exact: true }).click();
   await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Explore actions' }).click();
   await page.frameLocator('#analytics_iframe').getByRole('menuitem', { name: 'Download ⇧⌘L' }).click();
-  
+
   await page.frameLocator('#analytics_iframe').getByTestId('caret').locator('svg').click();
   await page.frameLocator('#analytics_iframe').getByText('PNG (Image of Visualization)').isVisible()
   await page.frameLocator('#analytics_iframe').getByText('PNG (Image of Visualization)').click();
   await page.frameLocator('#analytics_iframe').getByTestId('caret').locator('svg').click();
 
-  async function downloadFile() {
-    const downloadPromise = new Promise(resolve => {
-      page.once("download", download => {
-        download.saveAs("/Users/deepak.dhormare/Desktop/playwright_poc/playwright_poc_analytics/KRUSHNA.png");
-        resolve("download complete");
-      });
-    });
-  
-    await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).click();
-    await downloadPromise; // Wait for the download to complete
-  }
-  
 
-  await downloadFile();
+  // const download1Promise = page.waitForEvent('download');
+  // await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).click();
+  // const download1 = await download1Promise;
+  // await download1.saveAs("/Users/deepak.dhormare/Desktop/playwright_poc/playwright_poc_analytics/test1212.csv")
+ 
+  // page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).isVisible()
+  // const downloadPromise = page.waitForEvent('download');
+  // await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).click();
+  // const download = await downloadPromise;
+  // await download.saveAs("/Users/deepak.dhormare/Desktop/playwright_poc/playwright_poc_analytics/test3X232.png")
   
+  const downloadPage = page.waitForEvent('popup');
+  await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).click();
+  const page7 = await downloadPage;
+  const download1Promise = page7.waitForEvent('download');
+  const download= await download1Promise
+  
+  await download.saveAs("/Users/deepak.dhormare/Desktop/playwright_poc/playwright_poc_analytics/krushnaradha.png")
 
 });
