@@ -32,6 +32,6 @@ test('test', async ({ page }) => {
   const downloadPromise = page.waitForEvent('download');
   await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).click();
   const download = await downloadPromise;
-  await download.saveAs("/Users/deepak.dhormare/Desktop/playwright_poc/playwright_poc_analytics/test3X232.json")
+  await download.saveAs("/Users/deepak.dhormare/Desktop/playwright_poc/playwright_poc_analytics/deepak11.json")
 
 });
