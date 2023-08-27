@@ -2,19 +2,35 @@
 const { defineConfig, devices } = require('@playwright/test');
 
 module.exports = defineConfig({
- //which tests to run
+  // which tests to run
   testDir: './analytics_tests',
-  fullyParallel: false,
-  timeout: 60*1000,
+  timeout: 60 * 1000,
   expect: {
-    timeout: 30*1000
+    timeout: 30 * 1000,
   },
   reporter: 'html',
-  use: {
-    //all properties  mentioned here
-    browserName : 'chromium',
-    trace: 'on-first-retry',
-    headless: false
-  },
+  projects: [
+    {
+      name: 'chromium',
+      use: {
+        browserName: 'chromium',
+        headless: false,
+      },
+    },
+    {
+      name: 'firefox',
+      use: {
+        browserName: 'firefox',
+        headless: false,
+      },
+    },
+    {
+      name: 'webkit',
+      use: {
+        browserName: 'webkit',
+        headless: false,
+      },
+    },
+  ],
+  workers: 3, // Number of parallel workers (adjust as needed)
 });
-

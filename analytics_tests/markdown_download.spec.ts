@@ -1,12 +1,13 @@
 import { test, expect } from '@playwright/test';
 
 test('test', async ({ page }) => {
-  await page.goto('https://clone-groupon-incremental-30.coupadev.com/sessions/new');
+  const INSTANCE_URL ="https://sanity2946r36.coupadev.com"
+  await page.goto(`${INSTANCE_URL}/sessions/new`);
   await page.getByLabel('Username or Email Address').fill('analytics_admin_user_login');
   await page.getByLabel('Password').click();
   await page.getByLabel('Password').fill('Temp@1234');
   await page.getByRole('button', { name: 'Sign In' }).click();
-  await page.goto('https://clone-groupon-incremental-30.coupadev.com/analytics');
+  await page.goto(`${INSTANCE_URL}/analytics`);
   await page.getByRole('link', { name: 'Create New Report' }).click();
   await page.getByRole('link', { name: 'Invoices' }).click();
   await page.frameLocator('#analytics_iframe').getByRole('treeitem', { name: 'Invoices', exact: true }).locator('svg').click();

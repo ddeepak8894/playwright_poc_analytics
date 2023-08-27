@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 test('test', async ({ page }) => {
-  await page.goto('https://clone-groupon-incremental-30.coupadev.com/sessions/new');
+  const INSTANCE_URL ="https://sanity2946r36.coupadev.com"
+  await page.goto(`${INSTANCE_URL}/sessions/new`);
   await page.getByLabel('Username or Email Address').fill('analytics_admin_user_login');
   await page.getByLabel('Password').click();
   await page.getByLabel('Password').fill('Temp@1234');
