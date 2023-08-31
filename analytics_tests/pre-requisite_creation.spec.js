@@ -42,13 +42,17 @@ await page.frameLocator('#analytics_iframe').locator('#qr-look-modal-title-field
 await page.frameLocator('#analytics_iframe').locator('lk-file-navigator').getByRole('button', { name: 'My folder' }).isVisible()
 await page.frameLocator('#analytics_iframe').locator('lk-file-navigator').getByRole('button', { name: 'My folder' }).click();
 await page.frameLocator('#analytics_iframe').locator('lk-file-navigator').getByRole('button', { name: 'My folder' }).click();
-await page.waitForLoadState('networkidle')
-await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Save & View Look' }).click();
-await page.waitForLoadState('networkidle')
 
+await page.evaluate(() => {
+  window.scrollBy(0, 300);
+})
+await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Save & View Look' }).click();
+
+await page.waitForLoadState("domcontentloaded")
 
 
 await page.goto(`${INTANCE_URL}/analytics`);
+await expect(page.getByRole('link', { name: 'redwood analytics-admin' })).toBeTruthy()
 await page.getByRole('link', { name: 'redwood analytics-admin' }).click();
 await page.locator("div.spend-analysis-folder-contents",{hasText:"Looks"}).locator("tr",{hasText:"look_test"}).locator(".enable-bootstrap").isVisible()
 await page.locator("div.spend-analysis-folder-contents",{hasText:"Looks"}).locator("tr",{hasText:"look_test"}).locator(".enable-bootstrap").click();
@@ -58,8 +62,12 @@ await page.locator("div.spend-analysis-folder-contents",{hasText:"Looks"}).locat
 await page.locator(".ui-dialog-content.ui-widget-content").locator("select").selectOption({label:INSTANCE_NAME})
 await page.getByRole('button', { name: 'Submit' }).click()
 
-await page.getByText('Look successfully moved').isVisible()
+
+await expect(page.getByRole('alert').getByText('Look successfully moved')).toBeVisible()
+
 await page.goto(`${INTANCE_URL}/analytics`);
+await expect(page.getByRole('link', { name: INSTANCE_NAME })).toBeVisible()
+
 await page.getByRole('link', { name: 'Invoicing' }).click();
 await page.getByRole('cell', { name: 'AP Manager', exact: true }).locator('i').click();
 await page.locator(".spend-analysis-folder-dashboards-content").locator("tr", { hasText: "AP Manager - Program Efficiency"}).locator(".enable-bootstrap").click()
@@ -67,13 +75,12 @@ await page.locator(".spend-analysis-folder-dashboards-content").locator("tr", { 
 await page.locator('#folder_id').selectOption({label:INSTANCE_NAME})
 await page.locator('#dashboard_name').fill("dashboard_test")
 await page.getByRole('button', { name: 'Submit' }).click()
-await page.waitForLoadState("networkidle")
 
-await page.getByText('Dashboard successfully copied').isVisible()
-
+await expect(page.getByRole('alert').getByText('Dashboard successfully copied')).toBeVisible()
+await page.goto(`${INTANCE_URL}/analytics`);
+await expect(page.getByRole('link', { name: INSTANCE_NAME })).toBeVisible()
 await page.getByRole('link', { name: INSTANCE_NAME }).click()
-await page.getByRole('link', { name: 'dashboard_test' }).isVisible()
-await page.getByRole('link', { name: 'look_test' }).isVisible()
+
 await expect(page.getByRole('link', { name: 'dashboard_test' })).toBeVisible()
 await expect(page.getByRole('link', { name: 'look_test' })).toBeVisible()
 })
