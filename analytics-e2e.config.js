@@ -3,11 +3,18 @@ const { defineConfig, devices } = require('@playwright/test');
 
 module.exports = defineConfig({
   // which tests to run
-  testDir: 'tests/',
-  timeout: 100 * 1000,
+  
+  timeout: 50 * 1000,
   expect: {
-    timeout: 100 * 1000,
+    timeout: 50 * 1000,
   },
+  use:{
+    headless: true,
+    viewport: {width:1280, height: 720},
+    actionTimeout: 15000,
+    video: "retain-on-failure",
+    screenshot: "only-on-failure"
+},
   reporter: 'html',
   projects: [
     {
@@ -16,7 +23,7 @@ module.exports = defineConfig({
         browserName: 'chromium',
         headless: false,
       },
-    }
+    } 
   ],
-  workers: 3, // Number of parallel workers (adjust as needed)
+   // Number of parallel workers (adjust as needed)
 });

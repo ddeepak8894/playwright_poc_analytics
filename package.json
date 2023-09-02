@@ -6,7 +6,13 @@
   "author": "deepak.dhormare <deepak.dhormare@coupa.com>",
   "license": "MIT",
   "devDependencies": {
-    "@playwright/test": "^1.36.2"
+    "@playwright/test": "^1.37.1"
   },
-  "scripts": {}
+  "scripts": {
+    "tests:chrome": "playwright test analytics_tests/pre-requisite_creation.spec.js --config=playwright.config.js --project=chromium"
+    ,"tests:analytics-e2e": "playwright test tests/analytics_e2e --config=analytics-e2e.config.js"
+  },
+  "dependencies": {
+    "yargs": "^17.7.2"
+  }
 }
