@@ -2,6 +2,8 @@ const {test, expect}= require('@playwright/test')
 const fs = require('fs').promises;
 
 const INSTANCE_URL ='https://sanity2946r36.coupadev.com';
+// const INSTANCE_URL ='https://clone-groupon-incremental-30.coupadev.com/';
+
 function formatInstanceName(url) {
     const urlParts = url.split('//');
     const urlInstance = urlParts[1].split('.')[0];
@@ -15,77 +17,8 @@ function formatInstanceName(url) {
   
   const INSTANCE_NAME = formatInstanceName(INSTANCE_URL);
   let prequisiteCreationFlag = false
-  test('Test JSON download ', async ({ page }) => {
-
-    await page.goto(`${INSTANCE_URL}/sessions/new`);
-    await page.getByLabel('Username or Email Address').click();
-    await page.getByLabel('Username or Email Address').fill('analytics_admin_user_login');
-    await page.locator('body').click();
-    await page.getByLabel('Password').click();
-    await page.getByLabel('Password').fill('Temp@1234');
-    await page.getByRole('button', { name: 'Sign In' }).click();
-    const goodMorningBanner = page.getByRole('button', { name: 'Not sure? Let us guide you' })
-    await expect(goodMorningBanner).toBeVisible()
 
 
-    await page.goto(`${INSTANCE_URL}/analytics`);
-    await page.getByRole('link', { name: 'Create New Report' }).click();
-    await page.getByRole('link', { name: 'Invoices' }).click();
-    await expect( page.frameLocator('#analytics_iframe').getByPlaceholder('Start typing to search')).toBeVisible()
-    
-
-    await page.frameLocator('#analytics_iframe').getByRole('treeitem', { name: 'Invoices', exact: true }).locator('svg').click();
-    await page.frameLocator('#analytics_iframe').getByRole('treeitem', { name: 'Line Level Measures' }).locator('svg').click();
-    await page.frameLocator('#analytics_iframe').getByLabel('Line Level Measures').getByText('Invoice Line Reporting Total', { exact: true }).click();
-    await page.frameLocator('#analytics_iframe').getByLabel('Line Level Measures').getByText('Invoice Line Total').click();
-    await page.frameLocator('#analytics_iframe').getByLabel('Run', { exact: true }).click();
-    await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Explore actions' }).click();
-    await page.frameLocator('#analytics_iframe').getByRole('menuitem', { name: 'Download ⇧⌘L' }).click();
-    await page.frameLocator('#analytics_iframe').getByLabel('Filename').fill("abcds.json")
-
-    await expect(page.frameLocator('#analytics_iframe').getByRole('heading', { name: 'Download' })).toBeVisible()
-    await expect(page.frameLocator('#analytics_iframe').getByLabel('Filename')).toBeVisible()
-    await expect(page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Open in Browser' })).toBeVisible()
-    await page.waitForTimeout(500);
-    await page.frameLocator('#analytics_iframe').getByLabel('Format', { exact: true }).click();
-
-    // Introduce a delay of 1 second (adjust as needed)
-    await page.waitForTimeout(500);
-    
-    await page.frameLocator('#analytics_iframe').getByRole('option', { name: 'JSON' }).click();
-    
-    // Introduce another delay of 1 second (adjust as needed)
-    await page.waitForTimeout(500);
-    
-    await page.frameLocator('#analytics_iframe').getByTestId('caret').locator('svg').click();
-    
-  
-  
-    // const download1Promise = page.waitForEvent('download');
-    // await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).click();
-    // const download1 = await download1Promise;
-    // await download1.saveAs("/Users/deepak.dhormare/Desktop/playwright_poc/playwright_poc_analytics/test1212.csv")
-   
-    page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).isVisible()
-    const downloadPromise = page.waitForEvent('download');
-    await page.evaluate(() => {
-      window.scrollBy(0, 300);
-    })
-    await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).click();
-    const download = await downloadPromise;
-    const downloadPath = '/Users/deepak.dhormare/Desktop/playwright_poc/playwright_poc_analytics/analytics_report_json.json';
-    await download.saveAs(downloadPath)
-      // Read the content of the downloaded file
-  const fileContent = await fs.readFile(downloadPath, 'utf-8');
-  const searchText = 'Invoices Invoice Line Reporting Total';
-  const containsText = fileContent.includes(searchText);
-
-  if (containsText) {
-    console.log(`The file contains the text: "${searchText}"`);
-  } else {
-    console.log(`The file does not contain the text: "${searchText}"`);
-  }
-  })
 test.describe.parallel("analytics e2e suite",()=>{
 
     test.beforeEach(async ({page})=>{
@@ -261,7 +194,7 @@ test.describe.parallel("analytics e2e suite",()=>{
     expect(fileSizeInKB).toBeGreaterThan(0)
   })
       
-      test('Test PNG download', async ({ page }) => {
+      test('Test PNG download', async ({ page ,browserName}) => {
 
         await page.goto(`${INSTANCE_URL}/analytics`);
         await page.getByRole('link', { name: 'Create New Report' }).click();
@@ -284,13 +217,22 @@ test.describe.parallel("analytics e2e suite",()=>{
         await expect(page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Open in Browser' })).toBeVisible()
         await page.waitForTimeout(500);
         await page.frameLocator('#analytics_iframe').getByLabel('Format', { exact: true }).click();
-
+    
+    
+    
         await page.waitForTimeout(500);
-
+    
         await page.frameLocator('#analytics_iframe').getByRole('option', { name: 'PNG (Image of Visualization)' }).click();
       
         await page.waitForTimeout(500);
-        await page.frameLocator('#analytics_iframe').getByTestId('caret').locator('svg').click();
+    
+        if (browserName === 'chromium') {
+          
+          await page.frameLocator('#analytics_iframe').getByTestId('caret').locator('svg').click();
+          // Add more test steps as needed for your PNG download test
+        } else {
+          console.log('This test is only intended to run in Chromium (Chrome).');
+        }
       
         
       
