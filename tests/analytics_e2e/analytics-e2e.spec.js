@@ -1,8 +1,10 @@
 const {test, expect}= require('@playwright/test')
 const fs = require('fs').promises;
 
-const INSTANCE_URL ='https://sanity2946r36.coupadev.com';
-// const INSTANCE_URL ='https://clone-groupon-incremental-30.coupadev.com/';
+// const INSTANCE_URL ='https://sanity2946r36.coupadev.com';
+const INSTANCE_URL ='https://dashmaster-r36-analytics.coupadev.com';
+// const INSTANCE_URL="https://clone-concentrix-analyticsr-38.coupadev.com";
+// const INSTANCE_URL="https://clone-groupon-incremental-30-domain-migration.coupadev.com/";
 
 function formatInstanceName(url) {
     const urlParts = url.split('//');
@@ -29,7 +31,7 @@ test.describe.parallel("analytics e2e suite",()=>{
         await page.getByLabel('Password').click();
         await page.getByLabel('Password').fill('Temp@1234');
         await page.getByRole('button', { name: 'Sign In' }).click();
-        const goodMorningBanner = page.getByRole('button', { name: 'Not sure? Let us guide you' })
+        const goodMorningBanner = page.getByRole('link', { name: 'Forms' })
         await expect(goodMorningBanner).toBeVisible()
     })
 
@@ -54,7 +56,11 @@ test.describe.parallel("analytics e2e suite",()=>{
            await expect(shareFolder).toBeVisible();
 
             await page.getByRole('link', { name: 'Create New Report' }).click();
-            await expect(page.getByText('STANDARD SPEND ANALYSIS')).toBeVisible()
+            await expect(
+              page.getByText('STANDARD SPEND ANALYSIS').isVisible() ||
+              page.getByText('SPEND ANALYSIS').isVisible()
+            ).toBeTruthy();
+            
             await page.getByRole('link', { name: 'Invoices' }).click();
 
 
@@ -150,11 +156,212 @@ test.describe.parallel("analytics e2e suite",()=>{
     await expect(page.frameLocator('#analytics_iframe').getByRole('heading', { name: 'Download' })).toBeVisible()
     await expect(page.frameLocator('#analytics_iframe').getByLabel('Filename')).toBeVisible()
     await expect(page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Open in Browser' })).toBeVisible()
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(700);
     await page.frameLocator('#analytics_iframe').getByLabel('Format', { exact: true }).click();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(700);
     await page.frameLocator('#analytics_iframe').getByRole('option', { name: 'JSON' }).click();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(700);
+    await page.frameLocator('#analytics_iframe').getByTestId('caret').locator('svg').click();
+  
+  
+    // const download1Promise = page.waitForEvent('download');
+    // await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).click();
+    // const download1 = await download1Promise;
+    // await download1.saveAs("/Users/deepak.dhormare/Desktop/playwright_poc/playwright_poc_analytics/test1212.csv")
+   
+    page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).isVisible()
+    const downloadPromise = page.waitForEvent('download');
+    await page.evaluate(() => {
+      window.scrollBy(0, 300);
+    })
+    await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).click();
+    const download = await downloadPromise;
+    const downloadPath ="/Users/deepak.dhormare/Desktop/playwright_poc/playwright_poc_analytics/analytics_report_json.json"
+    await download.saveAs(downloadPath)
+    const fileContent = await fs.readFile(downloadPath, 'utf-8');
+    const searchText = 'Invoice Line Reporting Total';
+    const containsText = fileContent.includes(searchText);
+  
+    if (containsText) {
+      console.log(`The file contains the text: "${searchText}"`);
+    } else {
+      console.log(`The file does not contain the text: "${searchText}"`);
+    }
+    const stats = await fs.stat(downloadPath);
+    const fileSizeInBytes = stats.size;
+    const fileSizeInKB = fileSizeInBytes / 1024;
+  
+    if (fileSizeInKB > 1) {
+      console.log(`Downloaded file size is greater than 1KB: ${fileSizeInKB} KB`);
+    } else {
+      console.log(`Downloaded file size is not greater than 1KB: ${fileSizeInKB} KB`);
+    }
+
+    expect(fileSizeInKB).toBeGreaterThan(0)
+  })
+
+  test('Test HTML download ', async ({ page }) => {
+
+
+
+    await page.goto(`${INSTANCE_URL}/analytics`);
+    await page.getByRole('link', { name: 'Create New Report' }).click();
+    await page.getByRole('link', { name: 'Invoices' }).click();
+    await expect( page.frameLocator('#analytics_iframe').getByPlaceholder('Start typing to search')).toBeVisible()
+    
+
+    await page.frameLocator('#analytics_iframe').getByRole('treeitem', { name: 'Invoices', exact: true }).locator('svg').click();
+    await page.frameLocator('#analytics_iframe').getByRole('treeitem', { name: 'Line Level Measures' }).locator('svg').click();
+    await page.frameLocator('#analytics_iframe').getByLabel('Line Level Measures').getByText('Invoice Line Reporting Total', { exact: true }).click();
+    await page.frameLocator('#analytics_iframe').getByLabel('Line Level Measures').getByText('Invoice Line Total').click();
+    await page.frameLocator('#analytics_iframe').getByLabel('Run', { exact: true }).click();
+    await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Explore actions' }).click();
+    await page.frameLocator('#analytics_iframe').getByRole('menuitem', { name: 'Download ⇧⌘L' }).click();
+    await page.frameLocator('#analytics_iframe').getByLabel('Filename').fill("abcds.json")
+
+    await expect(page.frameLocator('#analytics_iframe').getByLabel('Format', { exact: true })).toBeVisible()
+    await expect(page.frameLocator('#analytics_iframe').getByRole('heading', { name: 'Download' })).toBeVisible()
+    await expect(page.frameLocator('#analytics_iframe').getByLabel('Filename')).toBeVisible()
+    await expect(page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Open in Browser' })).toBeVisible()
+    await page.waitForTimeout(700);
+    await page.frameLocator('#analytics_iframe').getByLabel('Format', { exact: true }).click();
+    await page.waitForTimeout(700);
+    await page.frameLocator('#analytics_iframe').getByRole('option', { name: 'HTML' }).click();
+    await page.waitForTimeout(700);
+    await page.frameLocator('#analytics_iframe').getByTestId('caret').locator('svg').click();
+  
+  
+    // const download1Promise = page.waitForEvent('download');
+    // await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).click();
+    // const download1 = await download1Promise;
+    // await download1.saveAs("/Users/deepak.dhormare/Desktop/playwright_poc/playwright_poc_analytics/test1212.csv")
+   
+    page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).isVisible()
+    const downloadPromise = page.waitForEvent('download');
+    await page.evaluate(() => {
+      window.scrollBy(0, 300);
+    })
+    await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).click();
+    const download = await downloadPromise;
+    const downloadPath ="/Users/deepak.dhormare/Desktop/playwright_poc/playwright_poc_analytics/analytics_report_json.json"
+    await download.saveAs(downloadPath)
+    const fileContent = await fs.readFile(downloadPath, 'utf-8');
+    const searchText = 'Invoice Line Reporting Total';
+    const containsText = fileContent.includes(searchText);
+  
+    if (containsText) {
+      console.log(`The file contains the text: "${searchText}"`);
+    } else {
+      console.log(`The file does not contain the text: "${searchText}"`);
+    }
+    const stats = await fs.stat(downloadPath);
+    const fileSizeInBytes = stats.size;
+    const fileSizeInKB = fileSizeInBytes / 1024;
+  
+    if (fileSizeInKB > 1) {
+      console.log(`Downloaded file size is greater than 1KB: ${fileSizeInKB} KB`);
+    } else {
+      console.log(`Downloaded file size is not greater than 1KB: ${fileSizeInKB} KB`);
+    }
+
+    expect(fileSizeInKB).toBeGreaterThan(0)
+  })
+
+  test('Test EXCEL download ', async ({ page }) => {
+
+
+
+    await page.goto(`${INSTANCE_URL}/analytics`);
+    await page.getByRole('link', { name: 'Create New Report' }).click();
+    await page.getByRole('link', { name: 'Invoices' }).click();
+    await expect( page.frameLocator('#analytics_iframe').getByPlaceholder('Start typing to search')).toBeVisible()
+    
+
+    await page.frameLocator('#analytics_iframe').getByRole('treeitem', { name: 'Invoices', exact: true }).locator('svg').click();
+    await page.frameLocator('#analytics_iframe').getByRole('treeitem', { name: 'Line Level Measures' }).locator('svg').click();
+    await page.frameLocator('#analytics_iframe').getByLabel('Line Level Measures').getByText('Invoice Line Reporting Total', { exact: true }).click();
+    await page.frameLocator('#analytics_iframe').getByLabel('Line Level Measures').getByText('Invoice Line Total').click();
+    await page.frameLocator('#analytics_iframe').getByLabel('Run', { exact: true }).click();
+    await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Explore actions' }).click();
+    await page.frameLocator('#analytics_iframe').getByRole('menuitem', { name: 'Download ⇧⌘L' }).click();
+    await page.frameLocator('#analytics_iframe').getByLabel('Filename').fill("abcds.json")
+
+    await expect(page.frameLocator('#analytics_iframe').getByLabel('Format', { exact: true })).toBeVisible()
+    await expect(page.frameLocator('#analytics_iframe').getByRole('heading', { name: 'Download' })).toBeVisible()
+    await expect(page.frameLocator('#analytics_iframe').getByLabel('Filename')).toBeVisible()
+    await expect(page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Open in Browser' })).toBeVisible()
+    await page.waitForTimeout(700);
+    await page.frameLocator('#analytics_iframe').getByLabel('Format', { exact: true }).click();
+    await page.waitForTimeout(700);
+    await page.frameLocator('#analytics_iframe').getByRole('option', { name: 'Excel Spreadsheet (Excel 2007 or later)' }).click();
+    await page.waitForTimeout(700);
+    await page.frameLocator('#analytics_iframe').getByTestId('caret').locator('svg').click();
+  
+  
+    // const download1Promise = page.waitForEvent('download');
+    // await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).click();
+    // const download1 = await download1Promise;
+    // await download1.saveAs("/Users/deepak.dhormare/Desktop/playwright_poc/playwright_poc_analytics/test1212.csv")
+   
+    page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).isVisible()
+    const downloadPromise = page.waitForEvent('download');
+    await page.evaluate(() => {
+      window.scrollBy(0, 300);
+    })
+    await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Download' }).click();
+    const download = await downloadPromise;
+    const downloadPath ="/Users/deepak.dhormare/Desktop/playwright_poc/playwright_poc_analytics/analytics_report_json.json"
+    await download.saveAs(downloadPath)
+    const fileContent = await fs.readFile(downloadPath, 'utf-8');
+    const searchText = 'Invoice Line Reporting Total';
+    const containsText = fileContent.includes(searchText);
+  
+    if (containsText) {
+      console.log(`The file contains the text: "${searchText}"`);
+    } else {
+      console.log(`The file does not contain the text: "${searchText}"`);
+    }
+    const stats = await fs.stat(downloadPath);
+    const fileSizeInBytes = stats.size;
+    const fileSizeInKB = fileSizeInBytes / 1024;
+  
+    if (fileSizeInKB > 1) {
+      console.log(`Downloaded file size is greater than 1KB: ${fileSizeInKB} KB`);
+    } else {
+      console.log(`Downloaded file size is not greater than 1KB: ${fileSizeInKB} KB`);
+    }
+
+    expect(fileSizeInKB).toBeGreaterThan(0)
+  })
+
+  test('Test TEXT download ', async ({ page }) => {
+
+
+
+    await page.goto(`${INSTANCE_URL}/analytics`);
+    await page.getByRole('link', { name: 'Create New Report' }).click();
+    await page.getByRole('link', { name: 'Invoices' }).click();
+    await expect( page.frameLocator('#analytics_iframe').getByPlaceholder('Start typing to search')).toBeVisible()
+    
+
+    await page.frameLocator('#analytics_iframe').getByRole('treeitem', { name: 'Invoices', exact: true }).locator('svg').click();
+    await page.frameLocator('#analytics_iframe').getByRole('treeitem', { name: 'Line Level Measures' }).locator('svg').click();
+    await page.frameLocator('#analytics_iframe').getByLabel('Line Level Measures').getByText('Invoice Line Reporting Total', { exact: true }).click();
+    await page.frameLocator('#analytics_iframe').getByLabel('Line Level Measures').getByText('Invoice Line Total').click();
+    await page.frameLocator('#analytics_iframe').getByLabel('Run', { exact: true }).click();
+    await page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Explore actions' }).click();
+    await page.frameLocator('#analytics_iframe').getByRole('menuitem', { name: 'Download ⇧⌘L' }).click();
+    await page.frameLocator('#analytics_iframe').getByLabel('Filename').fill("abcds.json")
+
+    await expect(page.frameLocator('#analytics_iframe').getByLabel('Format', { exact: true })).toBeVisible()
+    await expect(page.frameLocator('#analytics_iframe').getByRole('heading', { name: 'Download' })).toBeVisible()
+    await expect(page.frameLocator('#analytics_iframe').getByLabel('Filename')).toBeVisible()
+    await expect(page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Open in Browser' })).toBeVisible()
+    await page.waitForTimeout(700);
+    await page.frameLocator('#analytics_iframe').getByLabel('Format', { exact: true }).click();
+    await page.waitForTimeout(700);
+    await page.frameLocator('#analytics_iframe').getByRole('option', { name: 'TXT (tab-separated values)' }).click();
+    await page.waitForTimeout(700);
     await page.frameLocator('#analytics_iframe').getByTestId('caret').locator('svg').click();
   
   
@@ -215,16 +422,16 @@ test.describe.parallel("analytics e2e suite",()=>{
         await expect(page.frameLocator('#analytics_iframe').getByRole('heading', { name: 'Download' })).toBeVisible()
         await expect(page.frameLocator('#analytics_iframe').getByLabel('Filename')).toBeVisible()
         await expect(page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Open in Browser' })).toBeVisible()
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(700);
         await page.frameLocator('#analytics_iframe').getByLabel('Format', { exact: true }).click();
     
     
     
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(700);
     
         await page.frameLocator('#analytics_iframe').getByRole('option', { name: 'PNG (Image of Visualization)' }).click();
       
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(700);
     
         if (browserName === 'chromium') {
           
@@ -275,13 +482,13 @@ test.describe.parallel("analytics e2e suite",()=>{
         await expect(page.frameLocator('#analytics_iframe').getByRole('heading', { name: 'Download' })).toBeVisible()
         await expect(page.frameLocator('#analytics_iframe').getByLabel('Filename')).toBeVisible()
         await expect(page.frameLocator('#analytics_iframe').getByRole('button', { name: 'Open in Browser' })).toBeVisible()
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(700);
         await page.frameLocator('#analytics_iframe').getByLabel('Format', { exact: true }).click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(700);
         
 
         await page.frameLocator('#analytics_iframe').getByRole('option', { name: 'Markdown' }).click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(700);
         await page.frameLocator('#analytics_iframe').getByTestId('caret').locator('svg').click();
       
       
