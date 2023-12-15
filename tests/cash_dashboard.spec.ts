@@ -93,7 +93,7 @@ await page.locator('div:nth-child(5) > div:nth-child(6) > .form-check-input').un
 //archive
 await page.goto('https://cash-qas.io.coupadev.com/')
 await page.getByRole('link', { name: ' Archives' }).click();
-await expect(page.locator('body')).toContainText('job_state_2');
+await expect(page.locator('body')).toContainText('job_state_5');
 await expect(page.getByRole('paragraph')).toContainText('Extract Job Archive');
 
 //enterprise schema
