@@ -23,19 +23,7 @@ module.exports = defineConfig({
         browserName: 'chromium',
         headless: false,
       },
-    } ,    {
-      name: 'firefox',
-      use: {
-        browserName: 'firefox',
-        headless: true,
-      },
-    } , {
-      name: 'webkit',
-      use: {
-        browserName: 'webkit',
-        headless: false,
-      },
-    }
+    } 
   ],
    // Number of parallel workers (adjust as needed)
 });

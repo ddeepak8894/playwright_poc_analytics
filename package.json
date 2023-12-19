@@ -6,13 +6,17 @@
   "author": "deepak.dhormare <deepak.dhormare@coupa.com>",
   "license": "MIT",
   "devDependencies": {
-    "@playwright/test": "^1.37.1"
+    "@playwright/test": "^1.40.1",
+    "@types/node": "^20.10.5"
   },
   "scripts": {
-    "tests:chrome": "playwright test analytics_tests/pre-requisite_creation.spec.js --config=playwright.config.js --project=chromium"
-    ,"tests:analytics-e2e": "playwright test tests/analytics_e2e --config=analytics-e2e.config.js"
+    "tests:chrome": "playwright test analytics_tests/pre-requisite_creation.spec.js --config=playwright.config.js --project=chromium",
+    "tests:analytics-e2e": "playwright test tests/analytics_e2e --config=analytics-e2e.config.js",
+    "tests:backgroundjobs": "playwright test tests/background_jobs/background_jobs.spec.ts --config=analytics-e2e.config.js",
+    "tests:backgroundjobsstatus": "playwright test tests/background_jobs/background_jobs_run_check.spec.ts --config=analytics-e2e.config.js"
   },
   "dependencies": {
+    "node-schedule": "^2.1.1",
     "yargs": "^17.7.2"
   }
 }
